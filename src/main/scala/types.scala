@@ -107,13 +107,38 @@ object exercise4 {
 }
 
 object exercise5 {
+  // partial application for values
+  val pow: (Int, Int) => Int = ???
+  /* or */
+  val pow2: Int => Int => Int = ???
+
+  val square: Int => Int = pow(_, 2)
+  /* or */
+  val square2: Int => Int = x => pow(x, 2)
+
+  trait Container[F[_]] {
+    def take[A](n: Int, c: F[A]): F[A]
+  }
+
+
+//  new Container[({type Apply[A] = Map[String, A]})#Apply]
+  /* or */
+//  type MapString[A] = Map[String, A]
+//  new Container[MapString]
+  /* or, with kind projector */
+//  new Container[Map[String, ?]]
+
+
   sealed trait Example[F[_]] {
     def value: F[String]
   }
 
-  /*
-  new Example[_] { // <-- ???
+  val exampleOption = new Example[Option] {
+    def value: Option[String] = Some("foo")
+  }
+
+  new Example[Either[?, Int]] { // <-- ???
     def value: Either[String, Int] = Right(2)
   }
-  */
+
 }
