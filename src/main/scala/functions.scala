@@ -47,7 +47,7 @@ object exercise3 {
       case x => x
     }
 
-  def then[A, B](first: Parser[A], second: Parser[B]): Parser[(A, B)] =
+  def then[A, B](first: Parser[A], second: Parser[B]): Parser[(A, B)] = ???
 //    (input) => first(input) match {
 //      case Right(i, a) => second(i) match {
 //        case Right(t) => ???
@@ -58,5 +58,20 @@ object exercise3 {
 }
 
 object exercise4 {
-  def snd[A, B](v: (A, B)): B = ???
+  val squareF: Int => Int = (x) => x * x
+  def squareM(x: Int): Int = x * x
+
+  trait Id {
+    def apply[A](x: A): A = x
+  }
+  object identity extends Id
+
+  identity(1) //= 1
+  identity("s") //= "s"
+
+
+
+  def snd[A, B](v: (A, B)): B = v._2
+  /* or */
+  def snd2[B](v: (_, B)): B = v._2
 }
