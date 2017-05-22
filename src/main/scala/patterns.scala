@@ -2,18 +2,30 @@ package lambdaconf.patterns
 
 import matryoshka._
 import monocle._
-import scalaz._
 
+import scalaz._
 import Scalaz._
+import scala.util.Try
 
 object exercise1 {
-  def readRowCol(): (Int, Int) = {
+  def parseInt(s: String): Option[Int] = Try(s.toInt).toOption
+
+  def readRowCol(): Option[(Int, Int)] = {
     println("Please enter a row:")
     val row = readLine()
     println("Please enter a column:")
     val col = readLine()
-    (row.toInt, col.toInt)
+    for {
+      r <- parseInt(row)
+      c <- parseInt(col)
+    } yield (r, c)
   }
+
+  sealed trait FileSystemError
+  final case class FileNotFound(path: String) extends FileSystemError
+  final case class FileLocked(path: String, expires: Int) extends FileSystemError
+  final case class FilePermission(path: String, group: String) extends FileSystemError
+  def readFile(path: String): FileSystemError \/ Array[Byte] = ???
 }
 
 object exercise2 {
@@ -25,6 +37,19 @@ object exercise2 {
 }
 
 object exercise3 {
+
+  def head: List ~> Option = new ~>[List, Option] {
+    def apply[A](v: List[A]): Option[A] = v.headOption
+  }
+
+
+  case class Strict[A](run: A) // Functor! Strict Identity Functor, Eager
+  case class Name[A](run: () => A) // Functor! Deferred
+  case class Need[A](private val run0: () => A) {
+    lazy val run = run0()
+  } // Functor! Memoized Lazily
+
+
   final case class Thunk[A](run: () => A)
 
   implicit val MonadThunk: Monad[Thunk] = ???
