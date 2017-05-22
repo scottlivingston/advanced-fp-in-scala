@@ -7,10 +7,14 @@ import scalaz._
 import Scalaz._
 
 object exercise1 {
-  final case class CheckersBoard(/* ??? */)
+  final case class Line[A](p1: A, p2: A, p3: A, p4: A)
+  final case class CheckersBoard(value: Line[Line[Option[CheckerPiece]]])
 
   sealed trait CheckerPiece
-  // ???
+  case object RedPiece          extends CheckerPiece
+  case object BlackPiece        extends CheckerPiece
+  case object CrownedRedPiece   extends CheckerPiece
+  case object CrownedBlackPiece extends CheckerPiece
 }
 
 object exercise2 {
