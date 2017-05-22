@@ -54,6 +54,53 @@ object exercise3 {
 }
 
 object exercise4 {
+  def snd[A](t: (_, A)): A = t._2
+
+  trait Foo {
+    type A //TYPE MEMBER
+
+    def newA: A
+  }
+
+  def acceptFoo(v: Foo) = {
+    val f: v.A = v.newA
+
+  }
+
+  trait SmartList[A] { self =>
+    type A0 //<: can bound this type, becomes a bound existential type
+
+    protected def mapper: A0 => A
+    protected def list: List[A0]
+
+    def run: List[A] = list.map(mapper)
+    def map[B](f: A => B): SmartList[B] = new SmartList[B] {
+      type A0 = self.A0
+      protected def mapper = self.mapper.andThen(f)
+      protected def list = self.list
+    }
+  }
+
+  object SmartList {
+    def apply[A](l: List[A]): SmartList[A] = new SmartList[A] {
+      type A0 = A
+
+      protected def mapper = a => a
+      protected def list = l
+    }
+  }
+
+  trait Stack {
+    type Stack[_]
+
+    def newStack[A]: Stack[A]
+
+    def push[A](v: A, s: Stack[A]): Stack[A]
+    def pop[A](s: Stack[A]): Option[(A, Stack[A])]
+  }
+
+  def myAlgo(s: Stack) = ??? //any stack can go here cause this code knows nothing about the stack itself
+
   trait FileSystem {
     // ???
   }
