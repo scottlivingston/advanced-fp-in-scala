@@ -5,6 +5,7 @@ import monocle._
 
 import scalaz._
 import Scalaz._
+import scala.concurrent.Future
 import scala.util.Try
 import scala.language.higherKinds
 
@@ -90,6 +91,23 @@ object exercise3 {
     override def map[A, B](fa: Option[A])(f: (A) => B): Option[B] = ???
   }
 
+
+  sealed trait Parser[A]
+  final case class ParseChar() extends Parser[Char]
+  final case class ParseChars(int: Int) extends Parser[String]
+  final case class ParseApply[A0](f: Parser[A0 => A], a: Parser[A]) extends Parser[A]
+  final case class ParsePoint[A](value: A) extends Parser[A]
+
+  implicit val ApplyParser = new Apply[Parser] {
+    def ap[A, B](fa: Parser[A])(fab: Parser[A => B]) = ParseApply(fab, fa)
+  }
+
+  val OptionToFuture: Option ~> Future = new ~>[Option, Future] {
+    override def apply[A](fa: Option[A]): Future[A] = fa match {
+      case None => Future.failed(new Exception("awe shit"))
+      case Some(o) => Future(o)
+    }
+  }
 
   final case class Thunk[A](run: () => A)
 

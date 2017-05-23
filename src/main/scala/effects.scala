@@ -3,13 +3,42 @@ package lambdaconf.effects
 import matryoshka._
 import monocle._
 import scalaz._
-
+import scala.io.StdIn._
 import Scalaz._
 
 object exercise1 {
-  final case class IO[A](/* ??? */)
+  println("enter a row:")
+  val line = readLine()
 
-  implicit val IOMonad: Monad[IO] = ???
+  // NOT functions in the context of fp!
+  // val println: String => ()
+  // val readline: () => String
+
+  // convert from an effect to a recipe for an effect
+  // val println: String => IO[()]
+  // val readLine: () => IO[String]
+
+  object Console {
+    val putStrinLn: String => IO[()] =
+      line => IO(unsafePerformIO = () => println(line))
+    val getStrLn: IO[String] =
+      IO(unsafePerformIO = () => readLine())
+  }
+
+
+  final case class IO[A](unsafePerformIO: () => A)
+
+  implicit val IOMonad: Monad[IO] = new Monad[IO] {
+    override def bind[A, B](fa: IO[A])(f: (A) => IO[B]): IO[B] = IO(() => f(fa.unsafePerformIO()).unsafePerformIO())
+    override def point[A](a: => A): IO[A] = IO(() => a)
+  }
+
+  import Console._
+  val program: IO[String] = for {
+    _ <- putStrinLn("whats your name?:")
+    name <- getStrLn
+    _ <- putStrinLn(s"whats up $name")
+  } yield name
 }
 
 object exercise2 {
