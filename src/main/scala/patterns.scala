@@ -6,6 +6,7 @@ import monocle._
 import scalaz._
 import Scalaz._
 import scala.util.Try
+import scala.language.higherKinds
 
 object exercise1 {
   def parseInt(s: String): Option[Int] = Try(s.toInt).toOption
@@ -43,11 +44,51 @@ object exercise3 {
   }
 
 
-  case class Strict[A](run: A) // Functor! Strict Identity Functor, Eager
-  case class Name[A](run: () => A) // Functor! Deferred
-  case class Need[A](private val run0: () => A) {
+  case class Eager[A](run: A) // Functor! Strict Identity Functor, Eager
+  case class Deferred[A](run: () => A) // Functor! Deferred
+  case class Memoized[A](private val run0: () => A) {
     lazy val run = run0()
   } // Functor! Memoized Lazily
+
+  trait Functor[F[_]] {
+    def map[A, B](fa: F[A])(f: A => B): F[B]
+  }
+
+  implicit def FunctionFunctor[A0]: Functor[Function[A0, ?]] = new Functor[Function[A0, ?]] {
+    override def map[A, B](fa: Function[A0, A])(f: A => B): Function[A0, B] =
+      a0 => f(fa(a0))
+  }
+
+
+  trait Apply[F[_]] extends Functor[F] {
+    def ap[A, B](fa: F[A])(fab: F[A => B]): F[B]
+  }
+
+  trait ApplyZip[F[_]] {
+    def zip[A, B](fa: F[A], fb: F[B]): F[(A, B)]
+  }
+
+  implicit def OptionApply: Apply[Option] = new Apply[Option] {
+    override def ap[A, B](fa: Option[A])(fab: Option[(A) => B]): Option[B] = ???
+    override def map[A, B](fa: Option[A])(f: (A) => B): Option[B] = ???
+  }
+
+
+
+  trait Bind[F[_]] extends Apply[F] {
+    def bind[A, B](fa: F[A])(afb: A => F[B]): F[B]
+  }
+
+  implicit val BindOption: Bind[Option] = new Bind[Option] {
+    override def bind[A, B](fa: Option[A])(afb: (A) => Option[B]): Option[B] =
+      fa match {
+        case None => None
+        case Some(a) => afb(a)
+      }
+
+    override def ap[A, B](fa: Option[A])(fab: Option[(A) => B]): Option[B] = ???
+    override def map[A, B](fa: Option[A])(f: (A) => B): Option[B] = ???
+  }
 
 
   final case class Thunk[A](run: () => A)
