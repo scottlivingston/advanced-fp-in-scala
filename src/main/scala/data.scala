@@ -9,6 +9,34 @@ import Scalaz._
 object exercise1 {
   // 1. All prime numbers
   // 2. A JSON document
+//  case class Cell()
+//  case class Grid[A](grid: Vector[Vector[A]])
+//  case class Stats()
+//  case class Item()
+//  case class Player(stats: Stats, inv: List[Item])
+//  case class World(grid: Grid[Cell])
+//  case class GameWorld(me: Player, map: World)
+//
+//
+//  /** @tparam S Superstructure before the operation
+//    * @tparam T Superstructure after the opertion
+//    * @tparam A Focus before the operation
+//    * @tparam B Focus after the operation
+//    */
+//  case class Lens[S, A](
+//    get: S => A,
+//    set: S => A => S
+//  ) { self =>
+//    def -> [B](that: Lens[A, B]): Lens[S, B] =
+//      Lens(
+//        get = (s: S) => that.get(self.get(s)),
+//        set = (s: S) => (b: B) => that.set(self.get(s))(b)
+//     )
+//  }
+//
+//  val _Me: Lens[GameWorld, Player] = Lens(s => s.me, s => a => s.copy(me = a))
+//  val _Stats: Lens[Player, Stats] = Lens(s => s.stats, s => a => s.copy(stats = a))
+//  val _Inv: Lens[Player, List[Item]] = Lens(s => s.inv, s => a => s.copy(inv = a))
 }
 
 object exercise2 {

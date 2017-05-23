@@ -20,7 +20,7 @@ object exercise1 {
   // val readLine: () => IO[String]
 
   object Console {
-    val putStrinLn: String => IO[()] =
+    val putStrinLn: String => IO[Unit] =
       line => IO(unsafePerformIO = () => println(line))
     val getStrLn: IO[String] =
       IO(unsafePerformIO = () => readLine())
@@ -80,6 +80,40 @@ object exercise1 {
 
     override def xmap[A, B](ma: Function[A, B0], f: (A) => B, g: (B) => A): Function[B, B0] = ???
   }
+
+
+  trait MonadIO[F[_]] {
+    def capture[A](effect: => A): F[A]
+    def attempt[A](fa: F[A]): F[Either[String, A]]
+  }
+
+  implicit val MonadIOIO = new MonadIO[IO] {
+    def capture[A](effect: => A): IO[A] = IO(() => effect)
+
+    def attempt[A](fa: IO[A]): IO[Either[String, A]] = ???
+  }
+
+  sealed trait Level
+  case object Fine extends Level
+  case object Debug extends Level
+  trait MonadLog[F[_]] {
+    def log(level: Level, line: String): F[Unit]
+  }
+
+  implicit val MonadLogMonadIO = new MonadLog[IO] {
+    def log(level: Level, line: String): IO[Unit] = IO(() => println(s"$level: $line"))
+  }
+
+  
+
+
+//  def doLog[F[_]: MonadLog]: F[Unit] = ???
+//  def doIO[F[_]: MonadIO]: F[Unit] = ???
+//  def program[F[_]: MonadIO: MonadLog]: F[Unit] =
+//    for {
+//      _ <- doLog[F]
+//      _ <- doIO[F]
+//    } yield ()
 
 }
 
