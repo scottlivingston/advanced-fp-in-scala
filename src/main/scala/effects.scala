@@ -5,6 +5,7 @@ import monocle._
 import scalaz._
 import scala.io.StdIn._
 import Scalaz._
+import scala.language.higherKinds
 
 object exercise1 {
   println("enter a row:")
@@ -67,6 +68,18 @@ object exercise1 {
   } yield i
 
   program2.run(10)
+
+
+  trait Contravariant[F[_]] extends InvariantFunctor[F] {
+    def contramap[A, B](r: F[A])(f: B => A): F[B]
+  }
+
+  implicit def FunctorFunction[B0] = new Contravariant[Function[?, B0]] {
+    // def map[A, B](fa: Function[A, B0])(ab: A => B): B => B0 // this makes no sense and cannot be implemented
+    def contramap[A, B](r: A => B0)(f: B => A): B => B0 = r.compose(f)
+
+    override def xmap[A, B](ma: Function[A, B0], f: (A) => B, g: (B) => A): Function[B, B0] = ???
+  }
 
 }
 
