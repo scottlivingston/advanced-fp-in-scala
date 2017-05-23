@@ -39,6 +39,35 @@ object exercise1 {
     name <- getStrLn
     _ <- putStrinLn(s"whats up $name")
   } yield name
+
+
+  final case class State[S, A](run: S => (S, A))
+  implicit def StateMonad[S]: Monad[State[S, ?]] = new Monad[State[S, ?]] {
+    override def bind[A, B](fa: State[S, A])(f: A => State[S, B]): State[S, B] =
+      State(s => {
+        val (s2, a) = fa.run(s)
+        f(a).run(s2)
+      })
+    override def point[A](a: => A): State[S, A] = State(s => (s, a))
+
+  }
+
+  object State {
+    def gets[S]: State[S, S] = State(s => (s, s))
+    def puts[S](s2: S): State[S, Unit] = State(s => (s2, ()))
+    def modify[S](f: S => S): State[S, Unit] = State(s => (f(s), ()))
+  }
+
+  import State._
+  val program2: State[Int, Int] = for {
+    i <- gets[Int]
+    _ <- puts(i + 1)
+    _ <- modify[Int](_ + 2)
+    i <- gets[Int]
+  } yield i
+
+  program2.run(10)
+
 }
 
 object exercise2 {
